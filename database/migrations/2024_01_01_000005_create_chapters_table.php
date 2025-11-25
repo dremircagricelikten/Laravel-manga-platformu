@@ -32,7 +32,7 @@ return new class extends Migration
             $table->boolean('is_published')->default(false);
             
             // Stats
-            $table->unsignedBigInteger('views_count')->default(0);
+            $table->unsignedBigInteger('views')->default(0);
             
             $table->timestamps();
             $table->softDeletes();
