@@ -25,7 +25,8 @@ return new class extends Migration
             // A user can only have one reaction per item
             $table->unique(['reactionable_type', 'reactionable_id', 'user_id']);
             
-            $table->index(['reactionable_type', 'reactionable_id']);
+            // morphs() already creates index for reactionable_type and reactionable_id
+            // unique() also creates an index
             $table->index('user_id');
         });
     }

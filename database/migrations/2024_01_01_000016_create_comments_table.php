@@ -31,7 +31,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
             
-            $table->index(['commentable_type', 'commentable_id']);
+            // morphs() already creates index for commentable_type and commentable_id
             $table->index('user_id');
             $table->index('parent_id');
             $table->index('is_approved');
