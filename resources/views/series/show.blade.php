@@ -24,20 +24,6 @@
                     </button>
                 </form>
                 <a href="/browse" 
-                   class="block w-full px-6 py-3 glass-effect rounded-lg text-center font-semibold hover:bg-white/10 transition">
-                    Geri Dön
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-@endif
-
-<!-- Hero Section -->
-<section class="relative h-96 md:h-[500px]">
-    <img src="{{ $series->cover_image ? Storage::url($series->cover_image) : '/images/placeholder.jpg' }}" 
-         alt="{{ $series->title }}" 
-         class="w-full h-full object-cover">
     <div class="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f]/80 to-transparent"></div>
 </section>
 
@@ -159,6 +145,12 @@
         </div>
     </div>
 </section>
+
+<!-- Reactions -->
+@include('components.reactions', ['item' => $series, 'type' => 'series'])
+
+<!-- Comments -->
+@include('components.comments', ['item' => $series, 'type' => 'series'])
 
 @endsection
 

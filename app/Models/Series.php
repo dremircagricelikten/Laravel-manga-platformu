@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Series extends Model
 {
@@ -55,6 +56,46 @@ class Series extends Model
     public function chapters(): HasMany
     {
         return $this->hasMany(Chapter::class)->orderBy('chapter_number');
+    }
+
+    /**
+     * Get the comments for the series
+     */
+    public function comments(): MorphMany
+    {
+        return $this->morphMany(Comment::class, 'commentable')
+            ->whereNull('parent_id')
+            ->where('is_approved', true)
+            ->with('replies')
+            ->latest();
+    }
+
+    /**
+     * Get the reactions for the series
+     */
+    public function reactions(): MorphMany
+    {
+        return $this->morphMany(Reaction::class, 'reactionable');
+    }
+
+    /**
+     * Get reactions grouped by type with counts
+     */
+    public function getReactionsSummary(): array
+    {
+        $summary = [];
+        
+        foreach (Reaction::types() as $type => $emoji) {
+            $count = $this->reactions()->where('type', $type)->count();
+            if ($count > 0) {
+                $summary[$type] = [
+                    'emoji' => $emoji,
+                    'count' => $count,
+                ];
+            }
+        }
+        
+        return $summary;
     }
 
     /**

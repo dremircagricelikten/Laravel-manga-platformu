@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Carbon\Carbon;
 
 class Chapter extends Model
@@ -150,6 +151,46 @@ class Chapter extends Model
     public function unlocks(): HasMany
     {
         return $this->hasMany(ChapterUnlock::class);
+    }
+
+    /**
+     * Get the comments for the chapter
+     */
+    public function comments(): MorphMany
+    {
+        return $this->morphMany(Comment::class, 'commentable')
+            ->whereNull('parent_id')
+            ->where('is_approved', true)
+            ->with('replies')
+            ->latest();
+    }
+
+    /**
+     * Get the reactions for the chapter
+     */
+    public function reactions(): MorphMany
+    {
+        return $this->morphMany(Reaction::class, 'reactionable');
+    }
+
+    /**
+     * Get reactions grouped by type with counts
+     */
+    public function getReactionsSummary(): array
+    {
+        $summary = [];
+        
+        foreach (Reaction::types() as $type => $emoji) {
+            $count = $this->reactions()->where('type', $type)->count();
+            if ($count > 0) {
+                $summary[$type] = [
+                    'emoji' => $emoji,
+                    'count' => $count,
+                ];
+            }
+        }
+        
+        return $summary;
     }
 
     /**

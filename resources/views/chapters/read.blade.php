@@ -224,3 +224,9 @@
     }
 </script>
 @endpush
+
+<!-- Reactions -->
+@include('components.reactions', ['item' => $chapter, 'type' => 'chapter'])
+
+<!-- Comments -->
+@include('components.comments', ['item' => $chapter, 'type' => 'chapter'])

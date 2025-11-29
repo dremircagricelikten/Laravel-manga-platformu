@@ -9,6 +9,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BrowseController;
 use App\Http\Controllers\CoinPackageController;
 use App\Http\Controllers\InstallController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\ReactionController;
 
 // Installation Routes
 Route::prefix('install')->middleware('web')->group(function () {
@@ -52,3 +54,15 @@ Route::get('/coin-packages', [CoinPackageController::class, 'index'])->name('coi
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/api/chapters/{id}/unlock', [ChapterController::class, 'unlock']);
 });
+
+// Comments & Reactions (AJAX)
+Route::middleware('auth')->group(function () {
+    Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+    Route::post('/comments/{comment}/toggle-approval', [CommentController::class, 'toggleApproval'])->name('comments.toggle-approval');
+    
+    Route::post('/reactions', [ReactionController::class, 'toggle'])->name('reactions.toggle');
+});
+
+// Public API
+Route::get('/api/reactions', [ReactionController::class, 'index'])->name('api.reactions.index');
