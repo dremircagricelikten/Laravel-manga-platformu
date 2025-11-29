@@ -52,7 +52,6 @@ class BulkUploadChapters extends Page
                                     ->numeric()
                                     ->step(0.1)
                                     ->default(function ($get) {
-                                        // Auto-increment from last chapter
                                         $chapters = $get('../../chapters') ?? [];
                                         return count($chapters) + 1;
                                     }),
@@ -84,12 +83,27 @@ class BulkUploadChapters extends Page
                                     ->visible(fn (Forms\Get $get): bool => $get('is_premium')),
                             ]),
 
+                        Forms\Components\FileUpload::make('chapter_zip')
+                            ->label('Chapter ZIP File')
+                            ->acceptedFileTypes(['application/zip', 'application/x-zip-compressed'])
+                            ->maxSize(512000)
+                            ->directory('chapters/zips')
+                            ->helperText('Upload ZIP file containing manga pages')
+                            ->visible(function (Forms\Get $get): bool {
+                                $seriesId = $get('../../series_id');
+                                if (!$seriesId) return false;
+                                $series = Series::find($seriesId);
+                                return $series?->type === 'manga';
+                            })
+                            ->columnSpanFull(),
+
                         Forms\Components\FileUpload::make('images')
-                            ->label('Chapter Images (for Manga)')
+                            ->label('Or Upload Images Separately')
                             ->multiple()
                             ->image()
                             ->directory('chapters/images')
                             ->reorderable()
+                            ->helperText('Alternative: Upload images one by one')
                             ->visible(function (Forms\Get $get): bool {
                                 $seriesId = $get('../../series_id');
                                 if (!$seriesId) return false;

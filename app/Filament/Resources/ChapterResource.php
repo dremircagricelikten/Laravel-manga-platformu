@@ -70,16 +70,31 @@ class ChapterResource extends Resource
 
             Forms\Components\Section::make('Content')
                 ->schema([
-                    // For Manga - Image Upload
+                    // For Manga - ZIP Upload
+                    Forms\Components\FileUpload::make('chapter_zip')
+                        ->label('Chapter ZIP File')
+                        ->acceptedFileTypes(['application/zip', 'application/x-zip-compressed'])
+                        ->maxSize(512000) // 500MB
+                        ->directory('chapters/zips')
+                        ->helperText('Upload a ZIP file containing all manga pages (will be extracted automatically)')
+                        ->visible(function (Forms\Get $get): bool {
+                            $seriesId = $get('series_id');
+                            if (!$seriesId) return false;
+                            $series = Series::find($seriesId);
+                            return $series?->type === 'manga';
+                        })
+                        ->columnSpanFull(),
+
+                    // For Manga - Manual Images (Alternative)
                     Forms\Components\FileUpload::make('images')
-                        ->label('Chapter Images')
-                        ->multiple()
+                        ->label('Or Upload Images Separately')
                         ->image()
-                        ->directory('chapters/images')
+                        ->multiple()
                         ->reorderable()
+                        ->directory('chapters/images')
                         ->imageEditor()
                         ->maxFiles(200)
-                        ->helperText('Upload manga pages in order')
+                        ->helperText('Alternative: Upload manga pages one by one in order')
                         ->visible(function (Forms\Get $get): bool {
                             $seriesId = $get('series_id');
                             if (!$seriesId) return false;
@@ -201,7 +216,7 @@ class ChapterResource extends Resource
                     ->dateTime('M d, Y')
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('views_count')
+                Tables\Columns\TextColumn::make('views')
                     ->label('Views')
                     ->sortable()
                     ->toggleable(),
