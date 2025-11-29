@@ -4,69 +4,45 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Cart extends Model
 {
     protected $fillable = [
         'user_id',
-        'session_id',
+        'coin_package_id',
+        'quantity',
     ];
 
-    /**
-     * Get the user that owns the cart
-     */
+    protected $casts = [
+        'quantity' => 'integer',
+    ];
+
+    protected $with = ['coinPackage'];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Get the cart items
-     */
-    public function items(): HasMany
+    public function coinPackage(): BelongsTo
     {
-        return $this->hasMany(CartItem::class);
+        return $this->belongsTo(CoinPackage::class);
     }
 
-    /**
-     * Get the total price of cart
-     */
-    public function getTotalAttribute(): float
+    public function getSubtotalAttribute(): float
     {
-        return $this->items->sum(function ($item) {
-            return $item->price * $item->quantity;
-        });
+        return $this->coinPackage->price * $this->quantity;
     }
 
-    /**
-     * Add item to cart
-     */
-    public function addItem($itemable, int $quantity = 1): CartItem
+    public static function getTotalAmount(int $userId): float
     {
-        $existingItem = $this->items()
-            ->where('itemable_type', get_class($itemable))
-            ->where('itemable_id', $itemable->id)
-            ->first();
-
-        if ($existingItem) {
-            $existingItem->increment('quantity', $quantity);
-            return $existingItem->fresh();
-        }
-
-        return $this->items()->create([
-            'itemable_type' => get_class($itemable),
-            'itemable_id' => $itemable->id,
-            'quantity' => $quantity,
-            'price' => $itemable->price,
-        ]);
+        return static::where('user_id', $userId)
+            ->get()
+            ->sum('subtotal');
     }
 
-    /**
-     * Clear cart
-     */
-    public function clear(): void
+    public static function getItemCount(int $userId): int
     {
-        $this->items()->delete();
+        return static::where('user_id', $userId)->sum('quantity');
     }
 }

@@ -11,6 +11,8 @@ use App\Http\Controllers\CoinPackageController;
 use App\Http\Controllers\InstallController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ReactionController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 
 // Installation Routes
 Route::prefix('install')->middleware('web')->group(function () {
@@ -66,3 +68,22 @@ Route::middleware('auth')->group(function () {
 
 // Public API
 Route::get('/api/reactions', [ReactionController::class, 'index'])->name('api.reactions.index');
+
+// Cart & Checkout
+Route::middleware('auth')->group(function () {
+    Route::get('/cart', [CartController::class, 'index'])->name('cart');
+    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+    Route::put('/cart/{id}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/{id}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::delete('/cart', [CartController::class, 'clear'])->name('cart.clear');
+    
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+    Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
+    Route::get('/checkout/bank-transfer/{order}', [CheckoutController::class, 'bankTransfer'])->name('checkout.bank-transfer');
+    Route::post('/checkout/bank-transfer/{order}', [CheckoutController::class, 'bankTransferSubmit'])->name('checkout.bank-transfer.submit');
+    Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+    Route::get('/checkout/failed', [CheckoutController::class, 'failed'])->name('checkout.failed');
+});
+
+// PayTR Callback (public)
+Route::post('/payment/paytr/callback', [CheckoutController::class, 'paytrCallback'])->name('payment.paytr.callback');
