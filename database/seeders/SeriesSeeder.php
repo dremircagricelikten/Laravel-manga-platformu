@@ -94,7 +94,7 @@ class SeriesSeeder extends Seeder
                 'title' => $data['title'],
                 'slug' => Str::slug($data['title']),
                 'description' => $data['description'],
-                'cover_image' => 'images/demo-cover-' . Str::slug($data['title']) . '.jpg',
+                'cover_image' => $this->getCoverImage($data['title']),
                 'status' => $data['status'],
                 'author' => $data['author'],
                 'artist' => $data['artist'],
@@ -107,5 +107,18 @@ class SeriesSeeder extends Seeder
             $categoryIds = Category::whereIn('name', $categoryNames)->pluck('id');
             $series->categories()->attach($categoryIds);
         }
+    }
+
+    private function getCoverImage($title)
+    {
+        $slug = Str::slug($title);
+        $validSlugs = ['kahraman-gunlukleri', 'golgelerin-prensi', 'askin-melodisi', 'uzay-maceralari'];
+        
+        if (in_array($slug, $validSlugs)) {
+            return "images/demo/{$slug}-cover.png";
+        }
+        
+        // Fallback for others
+        return "images/demo/kahraman-gunlukleri-cover.png";
     }
 }

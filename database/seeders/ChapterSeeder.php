@@ -40,8 +40,18 @@ class ChapterSeeder extends Seeder
                 // Create 10-15 pages for each chapter
                 $pageCount = rand(10, 15);
                 $pages = [];
+                $slug = Str::slug($seriesItem->title);
+                $validSlugs = ['kahraman-gunlukleri', 'golgelerin-prensi', 'askin-melodisi', 'uzay-maceralari'];
+                
+                if (!in_array($slug, $validSlugs)) {
+                    $slug = 'kahraman-gunlukleri';
+                }
+
+                $maxPages = ($slug === 'uzay-maceralari') ? 3 : 4;
+
                 for ($p = 1; $p <= $pageCount; $p++) {
-                    $pages[] = "images/demo-page-{$seriesItem->id}-{$i}-{$p}.jpg";
+                    $pageNum = ($p % $maxPages) == 0 ? $maxPages : ($p % $maxPages);
+                    $pages[] = "images/demo/{$slug}-page-{$pageNum}.png";
                 }
 
                 $chapter->update(['images' => $pages]); // Changed from pages to images
