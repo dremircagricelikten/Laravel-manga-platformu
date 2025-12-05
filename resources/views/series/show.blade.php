@@ -24,6 +24,17 @@
                     </button>
                 </form>
                 <a href="/browse" 
+                   class="w-full px-6 py-3 glass-effect rounded-lg font-semibold hover:bg-white/10 transition text-center block">
+                    Geri Dön
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
+<!-- Hero Banner -->
+<section class="relative h-[500px] overflow-hidden">
     <div class="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f]/80 to-transparent"></div>
 </section>
 

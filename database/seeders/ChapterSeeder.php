@@ -30,10 +30,11 @@ class ChapterSeeder extends Seeder
                     'title' => "Bölüm $i",
                     'slug' => Str::slug($seriesItem->title . '-chapter-' . $i),
                     'content' => $this->generateChapterContent($seriesItem->title, $i),
-                    'coin_cost' => $coinCost,
+                    'unlock_cost' => $coinCost, // Changed from coin_cost
                     'is_published' => true,
                     'published_at' => now()->subDays($chapterCount - $i),
                     'views' => rand(50, 5000),
+                    'free_at' => $isFree ? now() : now()->addDays(3),
                 ]);
 
                 // Create 10-15 pages for each chapter
@@ -43,7 +44,7 @@ class ChapterSeeder extends Seeder
                     $pages[] = "images/demo-page-{$seriesItem->id}-{$i}-{$p}.jpg";
                 }
 
-                $chapter->update(['pages' => json_encode($pages)]);
+                $chapter->update(['images' => $pages]); // Changed from pages to images
             }
         }
     }
