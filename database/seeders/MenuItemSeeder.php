@@ -21,17 +21,24 @@ class MenuItemSeeder extends Seeder
                 'is_active' => true,
             ],
             [
-                'title' => 'Gözat',
+                'title' => 'Tüm Seriler',
                 'route' => 'browse',
                 'parent_id' => null,
                 'sort_order' => 2,
                 'is_active' => true,
             ],
             [
-                'title' => 'Market',
-                'route' => 'market.index',
+                'title' => 'Son Bölümler',
+                'route' => 'latest',
                 'parent_id' => null,
                 'sort_order' => 3,
+                'is_active' => true,
+            ],
+            [
+                'title' => 'Popüler',
+                'route' => 'popular',
+                'parent_id' => null,
+                'sort_order' => 4,
                 'is_active' => true,
             ],
         ];

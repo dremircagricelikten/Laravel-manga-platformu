@@ -76,10 +76,12 @@
                 
                 <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="/" class="text-gray-300 hover:text-purple-500 transition">Ana Sayfa</a>
-                    <a href="/browse" class="text-gray-300 hover:text-purple-500 transition">Tüm Seriler</a>
-                    <a href="/latest" class="text-gray-300 hover:text-purple-500 transition">Son Bölümler</a>
-                    <a href="/popular" class="text-gray-300 hover:text-purple-500 transition">Popüler</a>
+                    @php
+                        $menuItems = \App\Models\MenuItem::where('is_active', true)->orderBy('sort_order')->get();
+                    @endphp
+                    @foreach($menuItems as $item)
+                        <a href="{{ route($item->route) }}" class="text-gray-300 hover:text-purple-500 transition">{{ $item->title }}</a>
+                    @endforeach
                 </div>
                 
                 <!-- Auth Buttons -->
@@ -120,10 +122,9 @@
         <!-- Mobile Menu -->
         <div x-show="mobileMenu" x-transition class="md:hidden border-t border-gray-800">
             <div class="px-4 py-4 space-y-3">
-                <a href="/" class="block text-gray-300 hover:text-purple-500">Ana Sayfa</a>
-                <a href="/browse" class="block text-gray-300 hover:text-purple-500">Tüm Seriler</a>
-                <a href="/latest" class="block text-gray-300 hover:text-purple-500">Son Bölümler</a>
-                <a href="/popular" class="block text-gray-300 hover:text-purple-500">Popüler</a>
+                @foreach($menuItems as $item)
+                    <a href="{{ route($item->route) }}" class="block text-gray-300 hover:text-purple-500">{{ $item->title }}</a>
+                @endforeach
                 @guest
                     <a href="/login" class="block text-purple-500">Giriş Yap</a>
                     <a href="/register" class="block px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg text-center">Kayıt Ol</a>
