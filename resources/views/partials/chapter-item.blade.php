@@ -3,7 +3,7 @@
     <div class="flex items-center space-x-4 flex-1">
         <div class="flex-shrink-0">
             @if($chapter->series->type === 'manga' && $chapter->cover_image)
-                <img src="{{ Storage::url($chapter->cover_image) }}" 
+                <img src="{{ Str::startsWith($chapter->cover_image, 'images/') ? asset($chapter->cover_image) : Storage::url($chapter->cover_image) }}" 
                      alt="Chapter {{ $chapter->chapter_number }}" 
                      class="w-16 h-20 object-cover rounded">
             @else

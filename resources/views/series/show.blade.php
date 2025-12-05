@@ -44,7 +44,7 @@
         <!-- Cover & Actions -->
         <div class="lg:col-span-1">
             <div class="sticky top-20">
-                <img src="{{ $series->cover_image ? Storage::url($series->cover_image) : '/images/placeholder.jpg' }}" 
+                <img src="{{ $series->cover_image ? (Str::startsWith($series->cover_image, 'images/') ? asset($series->cover_image) : Storage::url($series->cover_image)) : '/images/placeholder.jpg' }}" 
                      alt="{{ $series->title }}" 
                      class="w-full rounded-2xl shadow-2xl shadow-purple-500/20">
                 

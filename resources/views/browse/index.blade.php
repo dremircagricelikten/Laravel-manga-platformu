@@ -100,7 +100,7 @@
                     @foreach($series as $item)
                         <a href="/series/{{ $item->slug }}" class="card-hover group">
                             <div class="relative rounded-xl overflow-hidden">
-                                <img src="{{ $item->cover_image ? Storage::url($item->cover_image) : '/images/placeholder.jpg' }}" 
+                                <img src="{{ $item->cover_image ? (Str::startsWith($item->cover_image, 'images/') ? asset($item->cover_image) : Storage::url($item->cover_image)) : '/images/placeholder.jpg' }}" 
                                      alt="{{ $item->title }}" 
                                      class="w-full aspect-[3/4] object-cover">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>

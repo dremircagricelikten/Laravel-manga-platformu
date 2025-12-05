@@ -94,7 +94,7 @@
                 <!-- Manga Reader (Image-based) -->
                 <div class="container mx-auto max-w-4xl" @click="toggleControls()">
                     @foreach($chapter->images as $index => $image)
-                        <img src="{{ Storage::url($image) }}" 
+                        <img src="{{ Str::startsWith($image, 'images/') ? asset($image) : Storage::url($image) }}" 
                              alt="Page {{ $index + 1 }}" 
                              class="w-full h-auto"
                              loading="lazy">
