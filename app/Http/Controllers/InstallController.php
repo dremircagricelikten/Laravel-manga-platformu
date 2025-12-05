@@ -175,6 +175,39 @@ class InstallController extends Controller
         }
     }
 
+    public function settings()
+    {
+        return view('install.settings');
+    }
+
+    public function saveSettings(Request $request)
+    {
+        $request->validate([
+            'site_name' => 'required|string|max:255',
+            'site_description' => 'nullable|string|max:500',
+            'facebook_url' => 'nullable|url|max:255',
+            'twitter_url' => 'nullable|url|max:255',
+            'discord_url' => 'nullable|url|max:255',
+            'load_demo_data' => 'nullable|boolean',
+        ]);
+
+        try {
+            // Save site settings to database
+            \App\Models\SiteSetting::set('site_name', $request->site_name);
+            \App\Models\SiteSetting::set('site_description', $request->site_description ?? '');
+            \App\Models\SiteSetting::set('facebook_url', $request->facebook_url ?? '');
+            \App\Models\SiteSetting::set('twitter_url', $request->twitter_url ?? '');
+            \App\Models\SiteSetting::set('discord_url', $request->discord_url ?? '');
+
+            // Store demo data preference in session
+            session(['install_load_demo_data' => $request->load_demo_data]);
+
+            return response()->json(['success' => true]);
+        } catch (Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
     public function admin()
     {
         return view('install.admin');
@@ -232,6 +265,11 @@ class InstallController extends Controller
             // Publish Filament assets
             Artisan::call('filament:assets');
 
+            // Load demo data if requested
+            if (session('install_load_demo_data')) {
+                Artisan::call('db:seed', ['--force' => true]);
+            }
+
             // Create installed file
             File::put(storage_path('installed'), now()->toString());
 
@@ -240,6 +278,9 @@ class InstallController extends Controller
             Artisan::call('cache:clear');
             Artisan::call('route:clear');
             Artisan::call('view:clear');
+
+            // Clear session data
+            session()->forget(['install_db_config', 'install_load_demo_data']);
 
             return view('install.complete');
         } catch (Exception $e) {

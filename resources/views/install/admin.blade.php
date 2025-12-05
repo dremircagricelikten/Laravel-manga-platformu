@@ -38,8 +38,8 @@
     </form>
 
     <div class="flex justify-between">
-        <a href="{{ route('install.database') }}" class="px-6 py-3 bg-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-300 transition">
-            &larr; Back
+        <a href="{{ route('install.settings') }}" class="px-6 py-3 bg-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-300 transition">
+            &larr; Geri
         </a>
     </div>
 @endsection

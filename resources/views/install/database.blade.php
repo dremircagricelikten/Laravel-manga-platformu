@@ -145,8 +145,8 @@ document.getElementById('run-migrations-btn').addEventListener('click', async fu
             showAlert('success', data.message);
             
             setTimeout(() => {
-                document.getElementById('next-btn').classList.remove('hidden');
-            }, 1000);
+                window.location.href = '{{ route("install.settings") }}';
+            }, 1500);
         } else {
             showAlert('error', data.message);
             progressBar.style.width = '0%';

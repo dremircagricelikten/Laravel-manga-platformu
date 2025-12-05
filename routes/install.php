@@ -11,6 +11,8 @@ Route::prefix('install')->middleware('web')->group(function () {
     Route::post('/test-database', [InstallController::class, 'testDatabase'])->name('install.test-database');
     Route::post('/save-database', [InstallController::class, 'saveDatabase'])->name('install.save-database');
     Route::post('/migrate', [InstallController::class, 'migrate'])->name('install.migrate');
+    Route::get('/settings', [InstallController::class, 'settings'])->name('install.settings');
+    Route::post('/save-settings', [InstallController::class, 'saveSettings'])->name('install.save-settings');
     Route::get('/admin', [InstallController::class, 'admin'])->name('install.admin');
     Route::post('/create-admin', [InstallController::class, 'createAdmin'])->name('install.create-admin');
     Route::get('/finalize', [InstallController::class, 'finalize'])->name('install.finalize');
