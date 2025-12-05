@@ -11,7 +11,7 @@
                 <span class="text-2xl">{{ $emoji }}</span>
                 <span class="text-sm font-semibold text-gray-300" x-text="reactions['{{ $type }}']?.count || 0"></span>
             </button>
-        @end foreach
+        @endforeach
     </div>
 </div>
 
