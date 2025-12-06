@@ -57,10 +57,15 @@
                 </div>
 
                 @auth
-                    <button onclick="purchasePackage({{ $package->id }})" 
-                            class="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg font-semibold hover:shadow-xl hover:shadow-purple-500/50 transition">
-                        Satın Al
-                    </button>
+                    <form action="{{ route('cart.add') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="coin_package_id" value="{{ $package->id }}">
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" 
+                                    class="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg font-semibold hover:shadow-xl hover:shadow-purple-500/50 transition transform hover:-translate-y-1">
+                                Sepete Ekle
+                            </button>
+                        </form>
                 @else
                     <a href="/login?redirect={{ urlencode(request()->url()) }}" 
                        class="block w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg text-center font-semibold hover:shadow-xl hover:shadow-purple-500/50 transition">
@@ -118,10 +123,17 @@
 @endsection
 
 @push('scripts')
-<script>
-    function purchasePackage(packageId) {
-        // TODO: Implement payment gateway integration
-        alert('Ödeme sistemi entegrasyonu yakında eklenecek!\n\nŞu an için admin panelinden manuel olarak Ki Coin ekleyebilirsiniz.');
-    }
-</script>
+@if(session('success'))
+    <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)" 
+         class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg z-50 animate-bounce">
+        {{ session('success') }}
+    </div>
+@endif
+
+@if(session('error'))
+    <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)" 
+         class="fixed bottom-4 right-4 bg-red-500 text-white px-6 py-3 rounded-xl shadow-lg z-50">
+        {{ session('error') }}
+    </div>
+@endif
 @endpush

@@ -51,6 +51,7 @@ Route::get('/profile', [ProfileController::class, 'index'])->name('profile')->mi
 
 // Coin Packages
 Route::get('/coin-packages', [CoinPackageController::class, 'index'])->name('coin-packages');
+Route::get('/market', [CoinPackageController::class, 'index'])->name('market');
 
 // API Routes for AJAX
 Route::middleware('auth:sanctum')->group(function () {

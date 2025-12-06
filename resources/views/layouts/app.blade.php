@@ -57,13 +57,25 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(139, 92, 246, 0.2);
         }
+
+        /* Swup Transitions */
+        .transition-fade {
+            transition: 0.4s;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        html.is-animating .transition-fade {
+            opacity: 0;
+            transform: translateY(10px);
+        }
     </style>
     
     @stack('styles')
 </head>
 <body class="min-h-screen">
     <!-- Navigation -->
-    <nav class="glass-effect fixed top-0 w-full z-50" x-data="{ mobileMenu: false }">
+    <nav class="glass-effect fixed top-0 w-full z-50" x-data="{ mobileMenu: false, searchOpen: false, query: '', results: [], isLoading: false }">
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-16">
                 <!-- Logo -->
@@ -82,6 +94,12 @@
                     @foreach($menuItems as $item)
                         <a href="{{ route($item->route) }}" class="text-gray-300 hover:text-purple-500 transition">{{ $item->title }}</a>
                     @endforeach
+                    <!-- Search Button -->
+                    <button @click="searchOpen = true; $nextTick(() => $refs.searchInput.focus())" class="text-gray-300 hover:text-purple-500 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
                 </div>
                 
                 <!-- Auth Buttons -->
@@ -119,9 +137,99 @@
             </div>
         </div>
         
+        <!-- Search Modal -->
+        <div x-show="searchOpen" 
+             @keydown.escape.window="searchOpen = false"
+             class="fixed inset-0 z-[60] overflow-y-auto" 
+             style="display: none;">
+            <div class="fixed inset-0 bg-black/80 backdrop-blur-sm" @click="searchOpen = false"></div>
+            
+            <div class="relative min-h-screen md:min-h-[50vh] flex items-start justify-center pt-20 px-4">
+                <div class="bg-[#121218] w-full max-w-2xl rounded-2xl shadow-2xl border border-gray-800 overflow-hidden" @click.stop>
+                    <div class="p-4 border-b border-gray-800 flex items-center gap-3">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <input x-ref="searchInput" 
+                               x-model="query"
+                               @input.debounce.300ms="
+                                   if(query.length > 2) {
+                                       isLoading = true;
+                                       fetch('/browse?search=' + query, { headers: { 'Accept': 'application/json' } })
+                                        .then(res => res.json())
+                                        .then(data => { results = data.data; isLoading = false; });
+                                   } else {
+                                       results = [];
+                                   }
+                               "
+                               type="text" 
+                               placeholder="Manga, yazar veya karakter ara..." 
+                               class="bg-transparent border-none text-white w-full focus:ring-0 text-lg placeholder-gray-500">
+                        <button @click="searchOpen = false" class="text-gray-400 hover:text-white">
+                            <span class="text-xs font-medium uppercase tracking-wider border border-gray-700 rounded px-2 py-1">ESC</span>
+                        </button>
+                    </div>
+                    
+                    <div class="max-h-[60vh] overflow-y-auto p-2">
+                        <template x-if="isLoading">
+                            <div class="p-8 text-center text-gray-500">
+                                <svg class="animate-spin h-8 w-8 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Aranıyor...
+                            </div>
+                        </template>
+                        
+                        <template x-if="!isLoading && results.length > 0">
+                            <div class="space-y-1">
+                                <template x-for="result in results" :key="result.id">
+                                    <a :href="'/series/' + result.slug" class="flex items-center gap-4 p-3 hover:bg-gray-800 rounded-xl transition group">
+                                        <img :src="'/storage/' + result.cover_image" class="w-12 h-16 object-cover rounded-lg shadow-sm group-hover:shadow-md transition" alt="">
+                                        <div>
+                                            <h4 class="font-bold text-gray-200 group-hover:text-purple-400 transition" x-text="result.title"></h4>
+                                            <p class="text-xs text-gray-500 mt-1" x-text="result.author || 'Yazar Bilinmiyor'"></p>
+                                        </div>
+                                    </a>
+                                </template>
+                            </div>
+                        </template>
+                        
+                        <template x-if="!isLoading && query.length > 2 && results.length === 0">
+                            <div class="p-8 text-center text-gray-500">
+                                Sonuç bulunamadı.
+                            </div>
+                        </template>
+                        
+                        <template x-if="!isLoading && query.length <= 2">
+                            <div class="p-8 text-center">
+                                <p class="text-gray-500 text-sm">Aramak için yazmaya başlayın...</p>
+                                <div class="mt-4 flex flex-wrap gap-2 justify-center">
+                                    <a href="/popular" class="text-xs bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded-full text-gray-300 transition">Popüler Seriler</a>
+                                    <a href="/latest" class="text-xs bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded-full text-gray-300 transition">Son Bölümler</a>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    
+                    <div class="p-3 bg-gray-900 border-t border-gray-800 text-center">
+                        <a :href="'/browse?search=' + query" class="text-sm text-purple-500 hover:text-purple-400 font-medium">
+                            Tüm sonuçları gör &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Mobile Menu -->
         <div x-show="mobileMenu" x-transition class="md:hidden border-t border-gray-800">
             <div class="px-4 py-4 space-y-3">
+                <button @click="searchOpen = true; mobileMenu = false" class="flex items-center w-full text-left text-gray-300 hover:text-purple-500">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    Ara...
+                </button>
                 @foreach($menuItems as $item)
                     <a href="{{ route($item->route) }}" class="block text-gray-300 hover:text-purple-500">{{ $item->title }}</a>
                 @endforeach
@@ -134,7 +242,7 @@
     </nav>
     
     <!-- Main Content -->
-    <main class="pt-16">
+    <main id="swup" class="pt-16 transition-fade">
         @yield('content')
     </main>
     
@@ -189,6 +297,35 @@
         </div>
     </footer>
     
+    <!-- Global Toast Notifications -->
+    @if(session('success'))
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)" 
+             class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg z-[70] animate-bounce glass-effect border-none">
+            <div class="flex items-center space-x-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                <span>{{ session('success') }}</span>
+            </div>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)" 
+             class="fixed bottom-4 right-4 bg-red-500 text-white px-6 py-3 rounded-xl shadow-lg z-[70] glass-effect border-none">
+            <div class="flex items-center space-x-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>{{ session('error') }}</span>
+            </div>
+        </div>
+    @endif
+
     @stack('scripts')
+    
+    <script src="https://unpkg.com/swup@4"></script>
+    <script>
+        const swup = new Swup({
+            containers: ["#swup"],
+            animateHistoryBrowsing: true,
+        });
+    </script>
 </body>
 </html>

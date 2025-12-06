@@ -8,8 +8,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use Filament\Models\Contracts\FilamentUser;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     use HasFactory, Notifiable, HasRoles;
 
@@ -116,5 +117,13 @@ class User extends Authenticatable
     public function updateLastLogin(): void
     {
         $this->update(['last_login_at' => now()]);
+    }
+
+    /**
+     * Determine if the user can access the Filament admin panel.
+     */
+    public function canAccessPanel(\Filament\Panel $panel): bool
+    {
+        return $this->hasRole('Super Admin') || $this->email === 'admin@admin.com';
     }
 }

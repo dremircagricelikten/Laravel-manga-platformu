@@ -338,6 +338,52 @@ Check error logs: `/var/www/vhosts/domain.com/logs/error_log`
 
 ---
 
+### Issue: PHP Version Mismatch (Composer/Artisan Error)
+
+**Error:** `Root composer.json requires php ^8.2 but your php version (7.x) does not satisfy that requirement.`
+
+**Solution:**
+Plesk CLI often uses an older PHP version by default. You must use the full path to the PHP 8.2 (or 8.3) binary and the Plesk Composer path.
+
+1. Check available versions:
+   ```bash
+   ls /opt/plesk/php
+   ```
+
+2. **Run Composer with PHP 8.3 (Recommended if available):**
+   ```bash
+   /opt/plesk/php/8.3/bin/php /usr/local/psa/var/modules/composer/composer.phar install --optimize-autoloader --no-dev
+   ```
+
+3. **Run Composer with PHP 8.2:**
+   ```bash
+   /opt/plesk/php/8.2/bin/php /usr/local/psa/var/modules/composer/composer.phar install --optimize-autoloader --no-dev
+   ```
+
+4. **Run Artisan commands (use same version as composer):**
+   ```bash
+   /opt/plesk/php/8.3/bin/php artisan migrate:fresh --seed
+   ```
+
+---
+
+### Issue: `proc_open` is not available
+
+**Error:** `The Process class relies on proc_open, which is not available on your PHP installation.`
+
+**Solution:**
+This function is disabled in `php.ini` for security. You must enable it.
+
+1. Go to **Plesk Panel** → **Websites & Domains**
+2. Click **PHP Settings**
+3. Find `disable_functions`
+4. Remove `proc_open` from the list
+5. Click **Apply** or **OK**
+
+*If you cannot edit this in the UI, you may need to edit `php.ini` manually or contact hosting support.*
+
+---
+
 ## Optimization for Production
 
 ### Enable OPcache

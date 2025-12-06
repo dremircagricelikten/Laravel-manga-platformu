@@ -54,6 +54,11 @@ class BrowseController extends Controller
         }
 
         $series = $query->paginate(24)->appends($request->all());
+        
+        if ($request->wantsJson()) {
+            return response()->json($series);
+        }
+
         $categories = Category::orderBy('name')->get();
 
         return view('browse.index', compact('series', 'categories'));
